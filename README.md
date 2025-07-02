@@ -26,36 +26,36 @@ This Salesforce DX project contains the custom metadata, components, and configu
 
 ```bash
 # For Developer Edition or production org
-sfdx force:auth:web:login --setalias aurvix-dev --instanceurl https://login.salesforce.com
+sf org login web --alias aurvix-dev --instance-url https://login.salesforce.com
 
 # For sandbox
-sfdx force:auth:web:login --setalias aurvix-sandbox --instanceurl https://test.salesforce.com
+sf org login web --alias aurvix-sandbox --instance-url https://test.salesforce.com
 ```
 
 ### 2. Set Default Org (Optional)
 
 ```bash
-sfdx force:config:set defaultusername=aurvix-dev
+sf config set target-org=aurvix-dev
 ```
 
 ### 3. Retrieve Existing Metadata (if applicable)
 
 ```bash
 # Retrieve all metadata from org
-sfdx force:source:retrieve --manifest manifest/package.xml
+sf project retrieve start --manifest manifest/package.xml
 
 # Or retrieve specific metadata types
-sfdx force:source:retrieve --metadata CustomObject,ApexClass,Flow
+sf project retrieve start --metadata CustomObject ApexClass Flow
 ```
 
 ### 4. Deploy Changes to Org
 
 ```bash
 # Deploy all changes
-sfdx force:source:deploy --sourcepath force-app/main/default
+sf project deploy start --source-dir force-app/main/default
 
 # Deploy specific components
-sfdx force:source:deploy --sourcepath force-app/main/default/classes
+sf project deploy start --source-dir force-app/main/default/classes
 ```
 
 ## Common SFDX Commands
@@ -63,49 +63,49 @@ sfdx force:source:deploy --sourcepath force-app/main/default/classes
 ### Org Management
 ```bash
 # List all authenticated orgs
-sfdx force:org:list
+sf org list
 
 # Open org in browser
-sfdx force:org:open --targetusername aurvix-dev
+sf org open --target-org aurvix-dev
 
 # Create scratch org
-sfdx force:org:create --definitionfile config/project-scratch-def.json --setalias aurvix-scratch
+sf org create scratch --definition-file config/project-scratch-def.json --alias aurvix-scratch
 ```
 
 ### Metadata Operations
 ```bash
 # Pull changes from org
-sfdx force:source:pull
+sf project retrieve start
 
 # Push changes to scratch org
-sfdx force:source:push
+sf project deploy start
 
 # Check deployment status
-sfdx force:source:deploy:report --jobid <deployment-id>
+sf project deploy report --job-id <deployment-id>
 
 # Run Apex tests
-sfdx force:apex:test:run --resultformat human
+sf apex run test --result-format human
 ```
 
 ### Data Management
 ```bash
 # Import sample data
-sfdx force:data:tree:import --plan data/sample-data-plan.json
+sf data import tree --plan data/sample-data-plan.json
 
 # Export data
-sfdx force:data:tree:export --query "SELECT Id, Name FROM Account" --outputdir data
+sf data export tree --query "SELECT Id, Name FROM Account" --output-dir data
 ```
 
 ### Development Workflow
 ```bash
 # Create new Apex class
-sfdx force:apex:class:create --classname MyClass --outputdir force-app/main/default/classes
+sf apex generate class --name MyClass --output-dir force-app/main/default/classes
 
 # Create new Lightning Web Component
-sfdx force:lightning:component:create --componentname myComponent --type lwc --outputdir force-app/main/default/lwc
+sf lightning generate component --name myComponent --type lwc --output-dir force-app/main/default/lwc
 
 # Validate deployment without deploying
-sfdx force:source:deploy --sourcepath force-app/main/default --checkonly
+sf project deploy start --source-dir force-app/main/default --dry-run
 ```
 
 ## Project Structure
@@ -148,7 +148,7 @@ Use the helper scripts in the `scripts/` folder for common operations:
 
 1. Create a feature branch from `main`
 2. Make your changes and test thoroughly
-3. Run validation: `sfdx force:source:deploy --checkonly --sourcepath force-app/main/default`
+3. Run validation: `sf project deploy start --dry-run --source-dir force-app/main/default`
 4. Create a pull request with detailed description
 5. Ensure all tests pass before merging
 

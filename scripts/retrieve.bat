@@ -11,25 +11,25 @@ set METADATA_TYPES=%2
 echo 📥 Retrieving metadata from org: %SOURCE_ORG%
 
 REM Check if the org is authenticated
-sfdx force:org:list --json | findstr /C:"\"alias\":\"%SOURCE_ORG%\"" >nul
+sf org list | findstr /C:"%SOURCE_ORG%" >nul
 if errorlevel 1 (
     echo ❌ Error: Org '%SOURCE_ORG%' is not authenticated.
-    echo Please authenticate first: sfdx force:auth:web:login --setalias %SOURCE_ORG%
+    echo Please authenticate first: sf org login web --alias %SOURCE_ORG%
     exit /b 1
 )
 
 REM Build the retrieve command
 if not "%METADATA_TYPES%"=="" (
-    set RETRIEVE_CMD=sfdx force:source:retrieve --metadata %METADATA_TYPES% --targetusername %SOURCE_ORG%
+    set RETRIEVE_CMD=sf project retrieve start --metadata %METADATA_TYPES% --target-org %SOURCE_ORG%
     echo 📋 Retrieving specific metadata types: %METADATA_TYPES%
 ) else (
     REM Check if manifest exists
     if exist "manifest\package.xml" (
-        set RETRIEVE_CMD=sfdx force:source:retrieve --manifest manifest\package.xml --targetusername %SOURCE_ORG%
+        set RETRIEVE_CMD=sf project retrieve start --manifest manifest\package.xml --target-org %SOURCE_ORG%
         echo 📋 Retrieving metadata using manifest\package.xml
     ) else (
         REM Retrieve common metadata types
-        set RETRIEVE_CMD=sfdx force:source:retrieve --metadata CustomObject,CustomField,ApexClass,ApexTrigger,Flow,PermissionSet,Layout,Report,Dashboard,LightningComponentBundle --targetusername %SOURCE_ORG%
+        set RETRIEVE_CMD=sf project retrieve start --metadata CustomObject CustomField ApexClass ApexTrigger Flow PermissionSet Layout Report Dashboard LightningComponentBundle --target-org %SOURCE_ORG%
         echo 📋 Retrieving common metadata types
     )
 )

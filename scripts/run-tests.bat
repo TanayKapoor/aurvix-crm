@@ -11,19 +11,19 @@ set COVERAGE_FLAG=%2
 echo 🧪 Running Apex tests in org: %TARGET_ORG%
 
 REM Check if the org is authenticated
-sfdx force:org:list --json | findstr /C:"\"alias\":\"%TARGET_ORG%\"" >nul
+sf org list | findstr /C:"%TARGET_ORG%" >nul
 if errorlevel 1 (
     echo ❌ Error: Org '%TARGET_ORG%' is not authenticated.
-    echo Please authenticate first: sfdx force:auth:web:login --setalias %TARGET_ORG%
+    echo Please authenticate first: sf org login web --alias %TARGET_ORG%
     exit /b 1
 )
 
 REM Build the test command
-set TEST_CMD=sfdx force:apex:test:run --targetusername %TARGET_ORG% --resultformat human --wait 10
+set TEST_CMD=sf apex run test --target-org %TARGET_ORG% --result-format human --wait 10
 
 REM Add code coverage if specified
 if "%COVERAGE_FLAG%"=="--coverage" (
-    set TEST_CMD=%TEST_CMD% --codecoverage
+    set TEST_CMD=%TEST_CMD% --code-coverage
     echo 📊 Running tests with code coverage analysis
 ) else (
     echo 🏃 Running all Apex tests
@@ -43,9 +43,9 @@ if errorlevel 1 (
     if "%COVERAGE_FLAG%"=="--coverage" (
         echo.
         echo 📈 Code Coverage Summary:
-        sfdx force:apex:test:report --targetusername %TARGET_ORG% --codecoverage --resultformat human
+        sf apex get test --target-org %TARGET_ORG% --code-coverage --result-format human
     )
 )
 
 echo.
-echo 💡 Tip: Use 'sfdx force:apex:test:report --targetusername %TARGET_ORG%' to view detailed test results. 
+echo 💡 Tip: Use 'sf apex get test --target-org %TARGET_ORG%' to view detailed test results. 

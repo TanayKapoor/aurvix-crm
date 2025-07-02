@@ -11,20 +11,20 @@ set CHECK_ONLY=%2
 echo 🚀 Deploying Aurvix Smart CRM to org: %TARGET_ORG%
 
 REM Check if the org is authenticated
-sfdx force:org:list --json | findstr /C:"\"alias\":\"%TARGET_ORG%\"" >nul
+sf org list | findstr /C:"%TARGET_ORG%" >nul
 if errorlevel 1 (
     echo ❌ Error: Org '%TARGET_ORG%' is not authenticated.
-    echo Please authenticate first: sfdx force:auth:web:login --setalias %TARGET_ORG%
+    echo Please authenticate first: sf org login web --alias %TARGET_ORG%
     exit /b 1
 )
 
 REM Build the deployment command
-set DEPLOY_CMD=sfdx force:source:deploy --sourcepath force-app/main/default --targetusername %TARGET_ORG%
+set DEPLOY_CMD=sf project deploy start --source-dir force-app/main/default --target-org %TARGET_ORG%
 
-REM Add checkonly flag if specified
+REM Add dry-run flag if specified (equivalent to checkonly)
 if "%CHECK_ONLY%"=="--checkonly" (
-    set DEPLOY_CMD=%DEPLOY_CMD% --checkonly
-    echo 📋 Running validation deployment (check-only mode)
+    set DEPLOY_CMD=%DEPLOY_CMD% --dry-run
+    echo 📋 Running validation deployment (dry-run mode)
 ) else (
     echo 📦 Deploying source code
 )
