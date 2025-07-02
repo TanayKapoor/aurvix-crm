@@ -2,6 +2,9 @@
 REM Test runner script for Aurvix Smart CRM
 REM Usage: scripts\run-tests.bat [target-org-alias] [--coverage]
 
+REM Change to the project directory (parent of scripts folder)
+cd /d "%~dp0.."
+
 REM Set default org alias if not provided
 set TARGET_ORG=%1
 if "%TARGET_ORG%"=="" set TARGET_ORG=aurvix-dev

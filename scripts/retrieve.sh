@@ -3,6 +3,9 @@
 # Retrieve script for Aurvix Smart CRM
 # Usage: ./scripts/retrieve.sh [source-org-alias] [metadata-types]
 
+# Change to the project directory (parent of scripts folder)
+cd "$(dirname "$0")/.."
+
 # Set default org alias if not provided
 SOURCE_ORG=${1:-"aurvix-dev"}
 METADATA_TYPES=${2:-""}

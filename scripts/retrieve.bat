@@ -2,6 +2,9 @@
 REM Retrieve script for Aurvix Smart CRM
 REM Usage: scripts\retrieve.bat [source-org-alias] [metadata-types]
 
+REM Change to the project directory (parent of scripts folder)
+cd /d "%~dp0.."
+
 REM Set default org alias if not provided
 set SOURCE_ORG=%1
 if "%SOURCE_ORG%"=="" set SOURCE_ORG=aurvix-dev

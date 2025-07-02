@@ -3,6 +3,9 @@
 # Test runner script for Aurvix Smart CRM
 # Usage: ./scripts/run-tests.sh [target-org-alias] [--coverage]
 
+# Change to the project directory (parent of scripts folder)
+cd "$(dirname "$0")/.."
+
 # Set default org alias if not provided
 TARGET_ORG=${1:-"aurvix-dev"}
 COVERAGE_FLAG=${2:-""}

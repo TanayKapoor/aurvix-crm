@@ -3,6 +3,9 @@
 # Deploy script for Aurvix Smart CRM
 # Usage: ./scripts/deploy.sh [target-org-alias] [--checkonly]
 
+# Change to the project directory (parent of scripts folder)
+cd "$(dirname "$0")/.."
+
 # Set default org alias if not provided
 TARGET_ORG=${1:-"aurvix-dev"}
 CHECK_ONLY=${2:-""}
