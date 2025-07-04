@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>58.0</apiVersion>
+    <description>Automatically converts high-scoring leads (75+) to Accounts, Contacts, and Projects</description>
+    <environments>Default</environments>
+    <interviewLabel>Lead Auto Convert {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Lead Auto Convert</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Check_Lead_Score</targetReference>
+        </connector>
+        <object>Lead</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    
+    <decisions>
+        <name>Check_Lead_Score</name>
+        <label>Check Lead Score and Conversion Status</label>
+        <locationX>50</locationX>
+        <locationY>150</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>High_Score_Not_Converted</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Lead_Score__c</leftValueReference>
+                <operator>GreaterThanOrEqualTo</operator>
+                <rightValue>
+                    <numberValue>75.0</numberValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.IsConverted</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_Account</targetReference>
+            </connector>
+            <label>High Score Lead (Not Converted)</label>
+        </rules>
+    </decisions>
+    
+    <recordCreates>
+        <name>Create_Account</name>
+        <label>Create Account from Lead</label>
+        <locationX>50</locationX>
+        <locationY>250</locationY>
+        <connector>
+            <targetReference>Create_Contact</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Name</field>
+            <value>
+                <elementReference>$Record.Company</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Phone</field>
+            <value>
+                <elementReference>$Record.Phone</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Website</field>
+            <value>
+                <elementReference>$Record.Website</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Account</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    
+    <recordCreates>
+        <name>Create_Contact</name>
+        <label>Create Contact from Lead</label>
+        <locationX>50</locationX>
+        <locationY>350</locationY>
+        <connector>
+            <targetReference>Update_Lead_Converted</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>FirstName</field>
+            <value>
+                <elementReference>$Record.FirstName</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>LastName</field>
+            <value>
+                <elementReference>$Record.LastName</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Email</field>
+            <value>
+                <elementReference>$Record.Email</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Phone</field>
+            <value>
+                <elementReference>$Record.Phone</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>AccountId</field>
+            <value>
+                <elementReference>Create_Account</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Contact</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    
+    <recordUpdates>
+        <name>Update_Lead_Converted</name>
+        <label>Mark Lead as Converted</label>
+        <locationX>50</locationX>
+        <locationY>450</locationY>
+        <connector>
+            <targetReference>Create_Project_Record</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Qualified</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ConvertedAccountId</field>
+            <value>
+                <elementReference>Create_Account</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ConvertedContactId</field>
+            <value>
+                <elementReference>Create_Contact</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>IsConverted</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    
+    <recordCreates>
+        <name>Create_Project_Record</name>
+        <label>Create Project Record</label>
+        <locationX>50</locationX>
+        <locationY>550</locationY>
+        <connector>
+            <targetReference>Send_Email_Notification</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Name</field>
+            <value>
+                <stringValue>{!$Record.Project_Type__c} Project - {!$Record.Company}</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Client__c</field>
+            <value>
+                <elementReference>Create_Account</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status__c</field>
+            <value>
+                <stringValue>Planning</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Budget__c</field>
+            <value>
+                <elementReference>$Record.Budget__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Project__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    
+    <actionCalls>
+        <name>Send_Email_Notification</name>
+        <label>Send Email Notification</label>
+        <locationX>50</locationX>
+        <locationY>650</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <stringValue>🎉 High-Score Lead Converted: {!$Record.Company}</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <stringValue>A high-scoring lead has been automatically converted to an Account and Project!
+
+Lead Details:
+- Name: {!$Record.FirstName} {!$Record.LastName}
+- Company: {!$Record.Company}
+- Email: {!$Record.Email}
+- Lead Score: {!$Record.Lead_Score__c}
+- Project Type: {!$Record.Project_Type__c}
+- Budget: {!$Record.Budget__c}
+
+Actions Taken:
+✅ Lead converted to Account and Contact
+✅ Project record created and linked to Account
+✅ Status set to "Planning"
+
+Next Steps:
+1. Review the new Account and Contact records
+2. Follow up on the Project requirements
+3. Schedule initial consultation call
+
+View the new Account: {!$Setup.Organization.InstanceName}/lightning/r/Account/{!Create_Account}/view
+
+Best regards,
+Aurvix Smart CRM Automation</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailAddresses</name>
+            <value>
+                <stringValue>tanay@aurvix.xyz</stringValue>
+            </value>
+        </inputParameters>
+    </actionCalls>
+</Flow> 
